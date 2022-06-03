@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SWXSTANDALONE", "SWXSTANDALONE\SWXSTANDALONE.csproj", "{100DDE16-7D37-40D7-8AC0-3CCB70646664}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FBD98D71-E1A8-4B2A-816E-E8BEB232C91B}"
+	ProjectSection(SolutionItems) = preProject
+		SWXSTANDALONE\moto1.png = SWXSTANDALONE\moto1.png
+		SWXSTANDALONE\ur1.png = SWXSTANDALONE\ur1.png
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{100DDE16-7D37-40D7-8AC0-3CCB70646664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{100DDE16-7D37-40D7-8AC0-3CCB70646664}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{100DDE16-7D37-40D7-8AC0-3CCB70646664}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{100DDE16-7D37-40D7-8AC0-3CCB70646664}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3030CD87-55BA-4DC7-BD4E-C1C9DBF60347}
+	EndGlobalSection
+EndGlobal
