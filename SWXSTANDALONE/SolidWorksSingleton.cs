@@ -688,6 +688,12 @@ namespace SWXSTANDALONE
                                         { TessalationPoints[2, index], midZ, TessalationPoints[2, index + 1], TessalationPoints[2, index] + WeldmentNormals[2, index],  midZ + WeldmentNormals[2, index], TessalationPoints[2, index + 1] + WeldmentNormals[2, index]}
                                         });
 
+                                    Matrix<Double> A_aux = DenseMatrix.OfArray(new double[,] {
+                                        { TessalationPoints[0, index], midX, TessalationPoints[0, index + 1], TessalationPoints[0, index] + WeldmentNormals[0, index],  midX + WeldmentNormals[0, index], TessalationPoints[0, index + 1] + WeldmentNormals[0, index]},
+                                        { TessalationPoints[1, index], midY, TessalationPoints[1, index + 1], TessalationPoints[1, index] + WeldmentNormals[1, index],  midY + WeldmentNormals[1, index], TessalationPoints[1, index + 1] + WeldmentNormals[1, index]},
+                                        { TessalationPoints[2, index], midZ, TessalationPoints[2, index + 1], TessalationPoints[2, index] + WeldmentNormals[2, index],  midZ + WeldmentNormals[2, index], TessalationPoints[2, index + 1] + WeldmentNormals[2, index]}
+                                        });
+
                                     Matrix<Double> B = DenseMatrix.OfArray(new double[,]
                                         {
                                             { 0, 0, 0, 0, 0, 0},
@@ -695,7 +701,14 @@ namespace SWXSTANDALONE
                                             { stickout, stickout, stickout, 0, 0, 0}
                                         });
 
-                                    Matrix<Double> R = AbsoluteOrientation(A, B);
+                                    Matrix<Double> B_aux = DenseMatrix.OfArray(new double[,]
+                                        {
+                                            { 0, 0, 0, 0, 0, 0},
+                                            { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
+                                            { stickout, stickout, stickout, 0, 0, 0}
+                                        });
+
+                                    Matrix<Double> R = AbsoluteOrientation(A_aux, B_aux);
 
                                     
 
@@ -720,7 +733,7 @@ namespace SWXSTANDALONE
                                     EWOElement.SetAttribute("StartPose", StartPose);
                                     EWOElement.SetAttribute("EndPose", EndPose);
                                     EWOElement.SetAttribute("SeamAngle", Convert.ToString(weldment_angle));
-                                    EWOElement.SetAttribute("Stickout", Convert.ToString(stickout * 1000));
+                                    EWOElement.SetAttribute("Stickout", Convert.ToString(stickout));
                                     EWOElement.SetAttribute("BasePlateThickness", "0");
                                     EWOElement.SetAttribute("JoiningPlateThickness", "0");
 
@@ -761,7 +774,13 @@ namespace SWXSTANDALONE
                                 { weldment_start_coordinates[1], weldment_end_coordinates[1], (weldment_end_coordinates[1] + weldment_start_coordinates[1]) / 2, weldment_start_coordinates[1] + JoiningNormal[1] * 0.01,  weldment_end_coordinates[1] + JoiningNormal[1] * 0.01, (weldment_end_coordinates[1] + weldment_start_coordinates[1]) / 2 + JoiningNormal[1] * 0.01 },
                                 { weldment_start_coordinates[2], weldment_end_coordinates[2], (weldment_end_coordinates[2] + weldment_start_coordinates[2]) / 2, weldment_start_coordinates[2] + JoiningNormal[2] * 0.01,  weldment_end_coordinates[2] + JoiningNormal[2] * 0.01, (weldment_end_coordinates[2] + weldment_start_coordinates[2]) / 2 + JoiningNormal[2] * 0.01 }
                             });
-                            
+
+                            Matrix<Double> A_aux = DenseMatrix.OfArray(new double[,] {
+                                { weldment_start_coordinates[0], weldment_end_coordinates[0], (weldment_end_coordinates[0] + weldment_start_coordinates[0]) / 2, weldment_start_coordinates[0] + JoiningNormal[0] * 0.01,  weldment_end_coordinates[0] + JoiningNormal[0] * 0.01, (weldment_end_coordinates[0] + weldment_start_coordinates[0]) / 2 + JoiningNormal[0] * 0.01},
+                                { weldment_start_coordinates[1], weldment_end_coordinates[1], (weldment_end_coordinates[1] + weldment_start_coordinates[1]) / 2, weldment_start_coordinates[1] + JoiningNormal[1] * 0.01,  weldment_end_coordinates[1] + JoiningNormal[1] * 0.01, (weldment_end_coordinates[1] + weldment_start_coordinates[1]) / 2 + JoiningNormal[1] * 0.01 },
+                                { weldment_start_coordinates[2], weldment_end_coordinates[2], (weldment_end_coordinates[2] + weldment_start_coordinates[2]) / 2, weldment_start_coordinates[2] + JoiningNormal[2] * 0.01,  weldment_end_coordinates[2] + JoiningNormal[2] * 0.01, (weldment_end_coordinates[2] + weldment_start_coordinates[2]) / 2 + JoiningNormal[2] * 0.01 }
+                            });
+
                             Matrix<Double> B = DenseMatrix.OfArray(new double[,]
                             {
                                 { 0, 0, 0, 0, 0, 0},
@@ -769,7 +788,16 @@ namespace SWXSTANDALONE
                                 { 0, 0, 0, JoiningNormal[2] * 0.01, JoiningNormal[2] * 0.01, JoiningNormal[2] * 0.01}
                             });
 
-                            Matrix<Double> R = AbsoluteOrientation(A, B);
+                            Matrix<Double> B_aux = DenseMatrix.OfArray(new double[,]
+                            {
+                                { 0, 0, 0, 0, 0, 0},
+                                { 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)), 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)) },
+                                { 0, 0, 0, JoiningNormal[2] * 0.01, JoiningNormal[2] * 0.01, JoiningNormal[2] * 0.01}
+                            });
+
+                            
+
+                            Matrix<Double> R = AbsoluteOrientation(A_aux, B_aux);
 
                             
 
@@ -789,12 +817,12 @@ namespace SWXSTANDALONE
 
                                 
 
-                                String ApproachPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString(A[0, 5] + ApproachVector[0]) + "], [" +
+                                String ApproachPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString((A[0, 5] + ApproachVector[0])) + "], [" +
                                 Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 5] + ApproachVector[1]) + "], [" +
                                 Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 5] + ApproachVector[2]) + "], " +
                                 "[0, 0, 0, 1]]";
 
-                                String DeparturePose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString(A[0, 5] + ApproachVector[0]) + "], [" +
+                                String DeparturePose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString((A[0, 5] + ApproachVector[0])) + "], [" +
                                 Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 5] + ApproachVector[1]) + "], [" +
                                 Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 5] + ApproachVector[2]) + "], " +
                                 "[0, 0, 0, 1]]";
@@ -814,7 +842,7 @@ namespace SWXSTANDALONE
                             EWOElement.SetAttribute("StartPose", StartPose);
                             EWOElement.SetAttribute("EndPose", EndPose);                            
                             EWOElement.SetAttribute("SeamAngle", SeamAngle);
-                            EWOElement.SetAttribute("Stickout", Convert.ToString(stickout * 1000));
+                            EWOElement.SetAttribute("Stickout", Convert.ToString(stickout));
                             EWOElement.SetAttribute("BasePlateThickness", "10");
                             EWOElement.SetAttribute("JoiningPlateThickness", "10");
 
