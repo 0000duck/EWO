@@ -783,16 +783,16 @@ namespace SWXSTANDALONE
 
                             Matrix<Double> B = DenseMatrix.OfArray(new double[,]
                             {
-                                { 0, 0, 0, 0, 0, 0},
+                                { 0, 0, 0, -1, -1, -1},
                                 { 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)), 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)) },
-                                { 0, 0, 0, JoiningNormal[2] * 0.01, JoiningNormal[2] * 0.01, JoiningNormal[2] * 0.01}
+                                { 0, 0, 0, 0, 0, 0}
                             });
 
                             Matrix<Double> B_aux = DenseMatrix.OfArray(new double[,]
                             {
-                                { 0, 0, 0, 0, 0, 0},
+                                { 0, 0, 0, -1, -1, -1},
                                 { 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)), 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)) },
-                                { 0, 0, 0, JoiningNormal[2] * 0.01, JoiningNormal[2] * 0.01, JoiningNormal[2] * 0.01}
+                                { 0, 0, 0, 0, 0, 0}
                             });
 
                             
