@@ -10,3 +10,18 @@ This software is built using the SolidWorks API and makes use of the Horn's meth
 Improved versions of this software are in production ans they are coming soon.
 
 THERE ARE KNOWN ISSUES with the proper orientation for the welding torch which are currently being fixed. 
+
+
+Macro for button in SolidWorks:
+
+Sub main()
+    Dim strProgramName As String
+    Dim strArgument As String
+
+    strProgramName = "C:\\Users\\simat\\source\\repos\\SWXSTANDALONE\\SWXSTANDALONE\\bin\\Debug\\net5.0-windows\\SWXSTANDALONE.exe"
+    strArgument = "/G"
+
+    Call Shell("""" & strProgramName & """ """ & strArgument & """", vbNormalFocus)
+
+Set swApp = Application.SldWorks
+End Sub
