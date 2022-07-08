@@ -259,8 +259,7 @@ namespace SWXSTANDALONE
             Edge[] edges;
             FeatureManager swFeatureManager;
             CosmeticWeldBeadFolder swWeldFolder = default(CosmeticWeldBeadFolder);
-            IFeatureFolder swFeatFolder = default(IFeatureFolder);
-            IniFile ini = new IniFile("C:\\Users\\Matei\\OneDrive\\Desktop\\Box\\weldments.ini");
+            IFeatureFolder swFeatFolder = default(IFeatureFolder);            
             XmlDocument XMLFile = new XmlDocument();
             //XMLFile.Load("C:\\Users\\Matei\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
             XmlElement RootNode = XMLFile.CreateElement("Weldments");
@@ -292,7 +291,7 @@ namespace SWXSTANDALONE
 
             if (((swModel != null)))
             {
-                ini.IniWriteValue("File", "Address", file_address);
+                
                 RootNode.SetAttribute("MeasurementUnit", "mm");
                 RootNode.SetAttribute("SWFile", file_address);
                 file_address = file_address.Replace(".SLDASM", ".STEP");
