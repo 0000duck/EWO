@@ -322,9 +322,28 @@ namespace SWXSTANDALONE
                     int d;
                     Object[] FromFaceObj = (Object[])swCosmeticWeldBeadFeatureData.GetEntitiesWeldFrom(out d);
                     Object[] ToFacesObj = (Object[])swCosmeticWeldBeadFeatureData.GetEntitiesWeldTo(out d);
-                    Face2[] FromFace = FromFaceObj as Face2[];
-                    Face2[] ToFaces = ToFacesObj as Face2[];
-                         
+                    Face2[] FromFace = null;
+                    Face2[] ToFaces = null;
+                    if (FromFaceObj != null && ToFacesObj != null)
+                    {
+                        FromFace = new Face2[FromFaceObj.Length];
+                        ToFaces = new Face2[ToFacesObj.Length];
+                        for (int i = 0; i < FromFaceObj.Length; i++)
+                        {
+                            FromFace[i] = FromFaceObj[i] as Face2;
+                        }
+                        for (int i = 0; i < ToFacesObj.Length; i++)
+                        {
+                            ToFaces[i] = ToFacesObj[i] as Face2;
+                        }
+                    }
+
+
+                    //Face2[] FromFace = FromFaceObj as Face2[];
+                    //Face2[] ToFaces = ToFacesObj as Face2[];
+
+
+
                     weldment_edges_obj = (Object[])swCosmeticWeldBeadFeatureData.GetReferenceEdges();
 
 
@@ -412,17 +431,104 @@ namespace SWXSTANDALONE
                         MathTransform FaceTransform = null, BaseTransform = null;
                         MathNet.Numerics.LinearAlgebra.Vector<Double> BaseNormal;
                         MathNet.Numerics.LinearAlgebra.Vector<Double> JoiningNormal;
-
+                        bool found_base = false;
                         if (FromFace != null && ToFaces != null)
                         {
-                            BaseFace = FromFace[0];
+                            
                             for (int index = 0; index < ToFaces.Length; index++)
                             {
                                 if (ToFaces[index].GetArea() == face1.GetArea() || ToFaces[index].GetArea() == face2.GetArea())
                                 {
-                                    JoiningFace = FromFace[index];
+                                    JoiningFace = ToFaces[index];
+                                    BaseFace = FromFace[0];
+                                    found_base = true;
                                     break;
                                 }
+                            }
+                            if (!found_base)
+                            {
+                                JoiningFace = FromFace[0];
+                                Feature FaceFeature1 = (Feature)JoiningFace.GetFeature();
+                                String FeatureName;
+                                FeatureName = FaceFeature1.GetNameForSelection(out FeatureName);
+                                int pFrom = FeatureName.IndexOf("@") + "@".Length;
+                                int pTo = FeatureName.LastIndexOf("@");
+                                String result = FeatureName.Substring(pFrom, pTo - pFrom);
+                                feature_successfuly_selected = swModelDocExt.SelectByID2(result, "COMPONENT", 0, 0, 0, false, 0, null, 0);
+                                swSelectionMgr = (SelectionMgr)swModel.SelectionManager;
+                                Component2 comp = (Component2)swSelectionMgr.GetSelectedObject6(1, 0);
+                                FaceTransform = comp.Transform;
+
+                                comp.DeSelect();
+                                Double[] FaceNormalDouble;
+                                object strips;
+                                if (JoiningFace.GetArea() == face1.GetArea())
+                                {
+                                    FaceNormalDouble = (Double[])face2.Normal;
+                                    strips = (object)face2.GetTessNorms();
+                                }
+                                else
+                                {
+                                    FaceNormalDouble = (Double[])face1.Normal;
+                                    strips = (object)face1.GetTessNorms();
+                                }
+                                MathNet.Numerics.LinearAlgebra.Vector<Double> FaceNormal = computeTransform2(FaceTransform, FaceNormalDouble[0], FaceNormalDouble[1], FaceNormalDouble[2]);
+                                if (FaceNormal.Average() != 0)
+                                {
+                                    MathNet.Numerics.LinearAlgebra.Vector<Double> RayPoint = DenseVector.OfArray(new double[] { (weldment_end_coordinates[0] + weldment_end_coordinates[0]) / 2, (weldment_end_coordinates[1] + weldment_end_coordinates[1]) / 2, (weldment_end_coordinates[2] + weldment_end_coordinates[2]) });
+                                    swModelDocExt.SelectByRay(SelectionPoint[0], SelectionPoint[1], SelectionPoint[2], FaceNormal[0], FaceNormal[1], FaceNormal[2], 0.1, 2, true, 0, 0);
+                                }
+                                else
+                                {
+                                    
+                                    float[] stripsa = strips as float[];
+                                    Double first_normal_x, first_normal_y, first_normal_z, last_normal_x, last_normal_y, last_normal_z;
+
+                                    if (stripsa.Length % 3 == 0)
+                                    {
+                                        first_normal_x = stripsa[3];
+                                        first_normal_y = stripsa[4];
+                                        first_normal_z = stripsa[5];
+                                        last_normal_x = stripsa[stripsa.Length - 3];
+                                        last_normal_y = stripsa[stripsa.Length - 2];
+                                        last_normal_z = stripsa[stripsa.Length - 1];
+
+                                    }
+                                    else
+                                    {
+                                        first_normal_x = stripsa[2];
+                                        first_normal_y = stripsa[3];
+                                        first_normal_z = stripsa[4];
+                                        last_normal_x = stripsa[stripsa.Length - 3];
+                                        last_normal_y = stripsa[stripsa.Length - 2];
+                                        last_normal_z = stripsa[stripsa.Length - 1];
+                                    }
+                                    MathNet.Numerics.LinearAlgebra.Vector<Double> firstNormal, lastNormal;
+                                    
+                                    firstNormal = computeTransform2(FaceTransform, first_normal_x, first_normal_y, first_normal_z);
+                                    lastNormal = computeTransform2(FaceTransform, last_normal_x, last_normal_y, last_normal_z);
+                                    MathNet.Numerics.LinearAlgebra.Vector<Double> avgNormal = (firstNormal + lastNormal) / 2;
+                                    
+                                    swModelDocExt.SelectByRay(SelectionPoint[0], SelectionPoint[1], SelectionPoint[2], avgNormal[0], avgNormal[1], avgNormal[2], 0.1, 2, true, 0, 0);
+                                    
+                                }
+                                BaseFace = (Face2)swSelectionMgr.GetSelectedObject6(1, 0);
+                                swModel.ClearSelection2(true);
+                                swModel.ClearSelection2(false);
+                                //FaceFeature1 = (Feature)BaseFace.GetFeature();
+                                
+                                //FeatureName = FaceFeature1.GetNameForSelection(out FeatureName);
+                                //pFrom = FeatureName.IndexOf("@") + "@".Length;
+                                //pTo = FeatureName.LastIndexOf("@");
+                                //result = FeatureName.Substring(pFrom, pTo - pFrom);
+                                //feature_successfuly_selected = swModelDocExt.SelectByID2(result, "COMPONENT", 0, 0, 0, false, 0, null, 0);
+                                //swSelectionMgr = (SelectionMgr)swModel.SelectionManager;
+                                //comp = (Component2)swSelectionMgr.GetSelectedObject6(1, 0);
+                                //BaseTransform = comp.Transform;
+
+                                //comp.DeSelect();
+
+
                             }
                         }
 
@@ -446,7 +552,7 @@ namespace SWXSTANDALONE
                             MathNet.Numerics.LinearAlgebra.Vector<Double> FaceNormal2 = computeTransform2(FaceTransform, FaceNormalDouble2[0], FaceNormalDouble2[1], FaceNormalDouble2[2]);
 
 
-                            MathNet.Numerics.LinearAlgebra.Vector<Double> RayPoint = DenseVector.OfArray(new double[] { (weldment_end_coordinates[0] + weldment_end_coordinates[0]) / 2, (weldment_end_coordinates[1] + weldment_end_coordinates[1]) / 2, (weldment_end_coordinates[2] + weldment_end_coordinates[2]) });
+                            MathNet.Numerics.LinearAlgebra.Vector<Double> RayPoint = DenseVector.OfArray(new double[] { (weldment_end_coordinates[0] + weldment_start_coordinates[0]) / 2, (weldment_end_coordinates[1] + weldment_start_coordinates[1]) / 2, (weldment_end_coordinates[2] + weldment_start_coordinates[2]) });
                             Face2 selectedFace;
 
                             BaseNormal = MathNet.Numerics.LinearAlgebra.Vector<Double>.Build.Random(3);
@@ -459,7 +565,7 @@ namespace SWXSTANDALONE
                                 if (FaceNormal1.Average() == 0)
                                 {
                                     JoiningFace = face1;
-                                    swModelDocExt.SelectByRay(RayPoint[0], RayPoint[1], RayPoint[2], FaceNormal2[0], FaceNormal2[1], FaceNormal2[2], 0.1, 2, true, 0, 0);
+                                    swModelDocExt.SelectByRay(SelectionPoint[0], SelectionPoint[1], SelectionPoint[2], FaceNormal2[0], FaceNormal2[1], FaceNormal2[2], 0.1, 2, true, 0, 0);
                                     selectedFace = (Face2)swSelectionMgr.GetSelectedObject6(1, 0);
                                     Double[] selectedFaceNormalDouble = (Double[])selectedFace.Normal;
                                     MathNet.Numerics.LinearAlgebra.Vector<Double> selectedFaceNormal = computeTransform2(FaceTransform, selectedFaceNormalDouble[0], selectedFaceNormalDouble[1], selectedFaceNormalDouble[2]);
