@@ -1026,7 +1026,12 @@ namespace SWXSTANDALONE
 
                     weld_index++;
                 }
-                XMLFile.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
+                //XMLFile.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
+                var path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+                var subFolderPath = Path.Combine(path, "EWO");
+                var filePath = Path.Combine(path, "EWO", "weldments.xml");
+                System.IO.Directory.CreateDirectory(subFolderPath);
+                XMLFile.Save(filePath);
                 Debug.Print("HOPA");
 
             }
