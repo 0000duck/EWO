@@ -70,13 +70,13 @@ namespace SWXSTANDALONE
 
             Matrix<double> M = A.Multiply(B.Transpose());
             Double Sxx = M[0, 0];
-            Double Syx = M[0, 1];
-            Double Szx = M[0, 2];
-            Double Sxy = M[1, 0];
+            Double Syx = M[1, 0];
+            Double Szx = M[2, 0];
+            Double Sxy = M[0, 1];
             Double Syy = M[1, 1];
-            Double Szy = M[1, 2];
-            Double Sxz = M[2, 0];
-            Double Syz = M[2, 1];
+            Double Szy = M[2, 1];
+            Double Sxz = M[0, 2];
+            Double Syz = M[1, 2];
             Double Szz = M[2, 2];
 
             Matrix<Double> N = DenseMatrix.OfArray(new double[,] { { Sxx + Syy + Szz, Syz - Szy, Szx - Sxz, Sxy - Syx }, { Syz - Szy, Sxx - Syy - Szz, Sxy + Syx, Szx + Sxz }, { Szx - Sxz, Sxy + Syx, -Sxx + Syy - Szz, Syz + Szy }, { Sxy - Syx, Szx + Sxz, Syz + Szy, -Sxx - Syy + Szz } });
@@ -85,7 +85,9 @@ namespace SWXSTANDALONE
             Evd<double> eigen = N.Evd();
             MathNet.Numerics.LinearAlgebra.Vector<Complex> D = eigen.EigenValues;
             Matrix<Double> V = eigen.EigenVectors;
-            int max_index = 0;
+            
+
+            int max_index = 3;
             Double max_eigen = D[0].Magnitude;
             for (int index = 1; index < D.Count; index++)
             {
@@ -125,7 +127,7 @@ namespace SWXSTANDALONE
             Matrix<Double> w = qT.Multiply(qR);
             Matrix<Double> R = w + Z.Multiply(Z);
 
-            R = R.Transpose();
+            //R = R.Transpose();
             return R;
         }
 
@@ -943,9 +945,9 @@ namespace SWXSTANDALONE
 
                                     Matrix<Double> B = DenseMatrix.OfArray(new double[,]
                                         {
-                                            { 0, 0, 0, 0, 0, 0},
+                                            { 0, 0, 0, 1, 1, 1},
                                             { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
-                                            { 0, 0, 0, -1, -1, -1}
+                                            { 0, 0, 0, 0, 0, 0}
                                         });
 
                                     String B_string = "[";
@@ -971,9 +973,9 @@ namespace SWXSTANDALONE
 
                                     Matrix<Double> B_aux = DenseMatrix.OfArray(new double[,]
                                         {
-                                            { 0, 0, 0, 0, 0, 0},
+                                            { 0, 0, 0, 1, 1, 1},
                                             { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
-                                            { 0, 0, 0, -1, -1, -1}
+                                            { 0, 0, 0, 0, 0, 0}
                                         });
 
                                     Matrix<Double> R = AbsoluteOrientation(A_aux, B_aux);
