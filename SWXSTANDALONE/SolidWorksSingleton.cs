@@ -261,9 +261,13 @@ namespace SWXSTANDALONE
             CosmeticWeldBeadFolder swWeldFolder = default(CosmeticWeldBeadFolder);
             IFeatureFolder swFeatFolder = default(IFeatureFolder);            
             XmlDocument XMLFile = new XmlDocument();
+            XmlDocument XMLLog = new XmlDocument();
+
             //XMLFile.Load("C:\\Users\\Matei\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
             XmlElement RootNode = XMLFile.CreateElement("Weldments");
+            XmlElement LogRootNode = XMLLog.CreateElement("PoseData");
             XMLFile.AppendChild(RootNode);
+            XMLLog.AppendChild(LogRootNode);
             Double stickout_D = 0.018;
             float stickout = Convert.ToSingle(stickout_D);
 
@@ -352,6 +356,9 @@ namespace SWXSTANDALONE
                     int ewoindex = 1;
                     for (int edge_index = 0; edge_index < weldment_edges_obj.Length; edge_index++)
                     {
+                        XmlElement EdgeElement = XMLLog.CreateElement("Edge");
+                        LogRootNode.AppendChild(EdgeElement);
+                        EdgeElement.SetAttribute("No", Convert.ToString(edge_index));
 
                         Edge weldment_edge = (Edge)weldment_edges_obj[edge_index];
 
@@ -733,7 +740,7 @@ namespace SWXSTANDALONE
                         if (curvedJoiningFace)
                         {
 
-                            Double first_normal_x, first_normal_y, first_normal_z, last_normal_x, last_normal_y, last_normal_z;
+                            Double first_normal_x, first_normal_y, first_normal_z, last_normal_x, last_normal_y, last_normal_z, mid_normal_x, mid_normal_y, mid_normal_z;
                             object strips = (object)JoiningFace.GetTessTriStripNorms();
                             float[] stripsa = strips as float[];
 
@@ -742,50 +749,84 @@ namespace SWXSTANDALONE
 
                             MathNet.Numerics.LinearAlgebra.Vector < Double > FirstNormal = computeTransform2(JoiningTransform, Convert.ToSingle(normss[0]), Convert.ToSingle(normss[1]), Convert.ToSingle(normss[2]));
                             MathNet.Numerics.LinearAlgebra.Vector < Double > LastNormal = computeTransform2(JoiningTransform, Convert.ToSingle(normss[normss.Length - 3]), Convert.ToSingle(normss[normss.Length - 2]), Convert.ToSingle(normss[normss.Length - 1]));
+                            MathNet.Numerics.LinearAlgebra.Vector<Double> MidNormal = computeTransform2(JoiningTransform, Convert.ToSingle(normss[(normss.Length/6)*3]), Convert.ToSingle(normss[(normss.Length/6)*3+1]), Convert.ToSingle(normss[(normss.Length/6)*3+2]));
 
                             MathNet.Numerics.LinearAlgebra.Vector<Double> FirstWeldmentNormal = (FirstNormal + BaseNormal) / 2;
                             MathNet.Numerics.LinearAlgebra.Vector<Double> LastWeldmentNormal = (LastNormal + BaseNormal) / 2;
 
-                            MathNet.Numerics.LinearAlgebra.Vector<Double> DifNormal = (FirstNormal - LastNormal) / (TessalationPoints.ColumnCount - 2);
+                            MathNet.Numerics.LinearAlgebra.Vector<Double> DifNormal = (FirstNormal - MidNormal) / ((TessalationPoints.ColumnCount-1) / 2);
 
                             for (int i = 0; i<3; i++)
                             {
-                                if (FirstNormal[i] > LastNormal[i])                                
+                                if (FirstNormal[i] > MidNormal[i])                                
                                     DifNormal[i] = -Math.Abs(DifNormal[i]);
                                 else
                                     DifNormal[i] = Math.Abs(DifNormal[i]);
                                 
                             }
 
-                            Matrix<Double> WeldmentNormals = Matrix<Double>.Build.Random(3, TessalationPoints.ColumnCount - 1);
+                            Matrix<Double> WeldmentNormals = Matrix<Double>.Build.Dense(3, TessalationPoints.ColumnCount - 1);
                             
                             WeldmentNormals[0, 0] = FirstNormal[0];
                             WeldmentNormals[1, 0] = FirstNormal[1];
                             WeldmentNormals[2, 0] = FirstNormal[2];
 
-                            for (int index = 1; index < TessalationPoints.ColumnCount - 1; index++)
+                            for (int index_tess = 1; index_tess < TessalationPoints.ColumnCount / 2; index_tess++)
                             {
-                                WeldmentNormals[0, index] = (WeldmentNormals[0, index - 1] + DifNormal[0]);
-                                WeldmentNormals[1, index] = (WeldmentNormals[1, index - 1] + DifNormal[1]);
-                                WeldmentNormals[2, index] = (WeldmentNormals[2, index - 1] + DifNormal[2]);
+                                WeldmentNormals[0, index_tess] = (WeldmentNormals[0, index_tess - 1] + DifNormal[0]);
+                                WeldmentNormals[1, index_tess] = (WeldmentNormals[1, index_tess - 1] + DifNormal[1]);
+                                WeldmentNormals[2, index_tess] = (WeldmentNormals[2, index_tess - 1] + DifNormal[2]);
 
                             }
+
+                            DifNormal = (MidNormal - LastNormal) / ((TessalationPoints.ColumnCount) / 2);
+
+                            for (int i = 0; i < 3; i++)
+                            {
+                                if (MidNormal[i] > LastNormal[i])
+                                    DifNormal[i] = -Math.Abs(DifNormal[i]);
+                                else
+                                    DifNormal[i] = Math.Abs(DifNormal[i]);
+
+                            }
+
+                            WeldmentNormals[0, TessalationPoints.ColumnCount / 2] = MidNormal[0];
+                            WeldmentNormals[1, TessalationPoints.ColumnCount / 2] = MidNormal[1];
+                            WeldmentNormals[2, TessalationPoints.ColumnCount / 2] = MidNormal[2];
+
+                            for (int index_tess = TessalationPoints.ColumnCount / 2 + 1; index_tess < TessalationPoints.ColumnCount - 1; index_tess++)
+                            {
+                                WeldmentNormals[0, index_tess] = (WeldmentNormals[0, index_tess - 1] + DifNormal[0]);
+                                WeldmentNormals[1, index_tess] = (WeldmentNormals[1, index_tess - 1] + DifNormal[1]);
+                                WeldmentNormals[2, index_tess] = (WeldmentNormals[2, index_tess - 1] + DifNormal[2]);
+
+                            }
+
+                            WeldmentNormals = WeldmentNormals / 100;
 
                             //for (int index = 0; index < WeldmentNormals.ColumnCount; index++)
                             //{
                             //    WeldmentNormals[0, index] = WeldmentNormals[0, index] * stickout;
                             //    WeldmentNormals[1, index] = WeldmentNormals[1, index] * stickout;
                             //    WeldmentNormals[2, index] = WeldmentNormals[2, index] * stickout;
-                                
+
                             //}
 
-
-                            MathNet.Numerics.LinearAlgebra.Vector<Double> firstNormal, lastNormal;
+                            int norm_index;
+                            MathNet.Numerics.LinearAlgebra.Vector<Double> firstNormal, lastNormal, midNormal;
                             if (stripsa.Length % 3 == 0)
                             {
                                 first_normal_x = stripsa[3];
                                 first_normal_y = stripsa[4];
                                 first_normal_z = stripsa[5];
+                                norm_index = stripsa.Length / 3;
+                                if (norm_index % 2 != 0)
+                                    norm_index++;
+                                norm_index = (norm_index / 2) * 3;
+                                mid_normal_x = stripsa[norm_index];
+                                mid_normal_y = stripsa[norm_index + 1];
+                                mid_normal_z = stripsa[norm_index + 2];
+
                                 last_normal_x = stripsa[stripsa.Length - 3];
                                 last_normal_y = stripsa[stripsa.Length - 2];
                                 last_normal_z = stripsa[stripsa.Length - 1];
@@ -796,12 +837,20 @@ namespace SWXSTANDALONE
                                 first_normal_x = stripsa[2];
                                 first_normal_y = stripsa[3];
                                 first_normal_z = stripsa[4];
+                                norm_index = stripsa.Length / 3;
+                                if (norm_index % 2 != 0)
+                                    norm_index++;
+                                norm_index = (norm_index / 2) * 3;
+                                mid_normal_x = stripsa[norm_index-1];
+                                mid_normal_y = stripsa[norm_index];
+                                mid_normal_z = stripsa[norm_index + 1];
                                 last_normal_x = stripsa[stripsa.Length - 3];
                                 last_normal_y = stripsa[stripsa.Length - 2];
                                 last_normal_z = stripsa[stripsa.Length - 1];
                             }
                             firstNormal = computeTransform2(JoiningTransform, first_normal_x, first_normal_y, first_normal_z);
                             lastNormal = computeTransform2(JoiningTransform, last_normal_x, last_normal_y, last_normal_z);
+                            midNormal = computeTransform2(JoiningTransform, mid_normal_x, mid_normal_y, mid_normal_z);
 
 
                             Double weldment_angle = computeAngle(BaseNormal[0], BaseNormal[1], BaseNormal[2], first_normal_x, first_normal_y, first_normal_z);
@@ -850,6 +899,10 @@ namespace SWXSTANDALONE
                                 for (int index = 0; index < TessalationPoints.ColumnCount - 1; index += 1)
 
                                 {
+
+                                    XmlElement EWOLogElement = XMLLog.CreateElement("EWO");
+                                    LogRootNode.AppendChild(EWOLogElement);
+                                    EWOLogElement.SetAttribute("No", Convert.ToString(index));
                                     Double midX = (TessalationPoints[0, index] + TessalationPoints[0, index + 1]) / 2;
                                     Double midY = (TessalationPoints[1, index] + TessalationPoints[1, index + 1]) / 2;
                                     Double midZ = (TessalationPoints[2, index] + TessalationPoints[2, index + 1]) / 2;
@@ -861,6 +914,27 @@ namespace SWXSTANDALONE
                                         { TessalationPoints[2, index], midZ, TessalationPoints[2, index + 1], TessalationPoints[2, index] + WeldmentNormals[2, index],  midZ + WeldmentNormals[2, index], TessalationPoints[2, index + 1] + WeldmentNormals[2, index]}
                                         });
 
+                                    String A_string = "[";
+
+                                    for(int row_index = 0; row_index < A.RowCount; row_index++)
+                                    {
+                                        
+                                        for (int col_index = 0; col_index < A.ColumnCount; col_index++)
+                                        {
+                                            A_string = A_string + Convert.ToString(A[row_index, col_index]);
+                                            if (col_index < A.ColumnCount - 1)
+                                                A_string = A_string + ", ";
+                                            
+
+                                        }
+                                        if (row_index < A.RowCount - 1)
+                                            A_string = A_string + "; ";
+                                        else
+                                            A_string = A_string + "]";
+                                    }
+
+                                    EWOLogElement.SetAttribute("A", A_string);
+
                                     Matrix<Double> A_aux = DenseMatrix.OfArray(new double[,] {
                                         { TessalationPoints[0, index], midX, TessalationPoints[0, index + 1], TessalationPoints[0, index] + WeldmentNormals[0, index],  midX + WeldmentNormals[0, index], TessalationPoints[0, index + 1] + WeldmentNormals[0, index]},
                                         { TessalationPoints[1, index], midY, TessalationPoints[1, index + 1], TessalationPoints[1, index] + WeldmentNormals[1, index],  midY + WeldmentNormals[1, index], TessalationPoints[1, index + 1] + WeldmentNormals[1, index]},
@@ -869,25 +943,65 @@ namespace SWXSTANDALONE
 
                                     Matrix<Double> B = DenseMatrix.OfArray(new double[,]
                                         {
-                                            { 0, 0, 0, -1, -1, -1},
+                                            { 0, 0, 0, 0, 0, 0},
                                             { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
-                                            { 0, 0, 0, 0, 0, 0}
+                                            { 0, 0, 0, -1, -1, -1}
                                         });
+
+                                    String B_string = "[";
+
+                                    for (int row_index = 0; row_index < B.RowCount; row_index++)
+                                    {
+
+                                        for (int col_index = 0; col_index < B.ColumnCount; col_index++)
+                                        {
+                                            B_string = B_string + Convert.ToString(B[row_index, col_index]);
+                                            if (col_index < B.ColumnCount - 1)
+                                                B_string = B_string + ", ";
+                                            
+
+                                        }
+                                        if (row_index < B.RowCount - 1)
+                                            B_string = B_string + "; ";
+                                        else
+                                            B_string = B_string + "]";
+                                    }
+
+                                    EWOLogElement.SetAttribute("B", B_string);
 
                                     Matrix<Double> B_aux = DenseMatrix.OfArray(new double[,]
                                         {
-                                            { 0, 0, 0, -1, -1, -1},
+                                            { 0, 0, 0, 0, 0, 0},
                                             { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
-                                            { 0, 0, 0, 0, 0, 0}
+                                            { 0, 0, 0, -1, -1, -1}
                                         });
 
                                     Matrix<Double> R = AbsoluteOrientation(A_aux, B_aux);
 
-                                    
+
+                                    String R_string = "[";
+
+                                    for (int row_index = 0; row_index < R.RowCount; row_index++)
+                                    {
+
+                                        for (int col_index = 0; col_index < R.ColumnCount; col_index++)
+                                        {
+                                            R_string = R_string + Convert.ToString(R[row_index, col_index]);
+                                            if (col_index < R.ColumnCount - 1)
+                                                R_string = R_string + ", ";
+                                            
+
+                                        }
+                                        if (row_index < R.RowCount - 1)
+                                            R_string = R_string + "; ";
+                                        else
+                                            R_string = R_string + "]";
+                                    }
+
+                                    EWOLogElement.SetAttribute("R", R_string);
 
 
 
-                                   
                                     String StartPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString(TessalationPoints[0, index]) + "], [" +
                                         Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(TessalationPoints[1, index]) + "], [" +
                                         Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(TessalationPoints[2, index]) + "], " +
@@ -1026,12 +1140,13 @@ namespace SWXSTANDALONE
 
                     weld_index++;
                 }
-                //XMLFile.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
-                var path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
-                var subFolderPath = Path.Combine(path, "EWO");
-                var filePath = Path.Combine(path, "EWO", "weldments.xml");
-                System.IO.Directory.CreateDirectory(subFolderPath);
-                XMLFile.Save(filePath);
+                XMLFile.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
+                XMLLog.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments_log.xml");
+                //var path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+                //var subFolderPath = Path.Combine(path, "EWO");
+                //var filePath = Path.Combine(path, "EWO", "weldments.xml");
+                //System.IO.Directory.CreateDirectory(subFolderPath);
+                //XMLFile.Save(filePath);
                 Debug.Print("HOPA");
 
             }
