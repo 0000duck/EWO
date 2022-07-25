@@ -17,6 +17,8 @@ using MathNet.Numerics.LinearAlgebra.Factorization;
 
 
 
+
+
 namespace SWXSTANDALONE
 {
     class SolidWorksSingleton
@@ -1072,15 +1074,15 @@ namespace SWXSTANDALONE
 
                             Matrix<Double> B = DenseMatrix.OfArray(new double[,]
                             {
-                                { 0, 0, 0, -1, -1, -1},
-                                { 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)), 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)) },
+                                { 0, 0, 0, 1, 1, 1},
+                                { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
                                 { 0, 0, 0, 0, 0, 0}
                             });
 
                             Matrix<Double> B_aux = DenseMatrix.OfArray(new double[,]
                             {
-                                { 0, 0, 0, -1, -1, -1},
-                                { 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)), 0, -Distance(A.Column(0), A.Column(1)), -Distance(A.Column(0), A.Column(2)) },
+                                { 0, 0, 0, 1, 1, 1},
+                                { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
                                 { 0, 0, 0, 0, 0, 0}
                             });
 
@@ -1142,14 +1144,51 @@ namespace SWXSTANDALONE
 
                     weld_index++;
                 }
-                XMLFile.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
-                XMLLog.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments_log.xml");
+                String directory = System.AppDomain.CurrentDomain.BaseDirectory;
+                String settings_path = Path.Combine(directory, "EWOsettings.xml");
+                bool path_exists = File.Exists(settings_path);
+                String file_path;
+                if (!path_exists)
+                {
+                    System.Windows.Forms.SaveFileDialog saveFileDialog1;
+                    saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+                    var path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+                    saveFileDialog1.InitialDirectory = path;
+                    saveFileDialog1.Title = "Select where to save the EWO file";
+                    saveFileDialog1.DefaultExt = "xml";
+                    saveFileDialog1.Filter = "xml files (*.xml)|*.xml|All files (*.*)|*.*";
+                    saveFileDialog1.FileName = "EWO";
+                    XmlDocument XMLSettings = new XmlDocument();
+                    XmlElement SettingsRootNode = XMLSettings.CreateElement("EWO_File");
+                    XMLSettings.AppendChild(SettingsRootNode);
+                    if (saveFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        file_path = saveFileDialog1.FileName;
+                        XMLFile.Save(file_path);
+                        SettingsRootNode.SetAttribute("Address", file_path);
+                        XMLSettings.Save(settings_path);
+                    }
+                }
+                else
+                {
+
+                    XmlDocument reader = new XmlDocument();
+                    reader.Load(settings_path);
+
+                    XmlNodeList element = reader.GetElementsByTagName("EWO_File");
+                    String address = element.Item(0).Attributes["Address"].Value;
+                    XMLFile.Save(address);
+                    
+
+                }
+                //XMLFile.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
+                //XMLLog.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments_log.xml");
                 //var path = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
                 //var subFolderPath = Path.Combine(path, "EWO");
                 //var filePath = Path.Combine(path, "EWO", "weldments.xml");
                 //System.IO.Directory.CreateDirectory(subFolderPath);
                 //XMLFile.Save(filePath);
-                Debug.Print("HOPA");
+                //Debug.Print("HOPA");
 
             }
 
