@@ -325,170 +325,173 @@ namespace SWXSTANDALONE
                         Matrix<Double> joiningNormals = ewo.JoiningNormals;
                         Matrix<Double> baseNormals =  ewo.BaseNormals;
                         int ewoindex = 0;
-                        for (int tessalationIndex = 0; tessalationIndex < ewo.TessalationPoints.ColumnCount - 1; tessalationIndex++)
+                        if (joiningNormals != null && baseNormals != null)
                         {
+                            for (int tessalationIndex = 0; tessalationIndex < joiningNormals.ColumnCount - 1; tessalationIndex++)
+                            {
 
 
-                            XmlElement EWOLogElement = XMLLog.CreateElement("EWO");
-                            LogRootNode.AppendChild(EWOLogElement);
-                            EWOLogElement.SetAttribute("No", Convert.ToString(tessalationIndex));
+                                XmlElement EWOLogElement = XMLLog.CreateElement("EWO");
+                                LogRootNode.AppendChild(EWOLogElement);
+                                EWOLogElement.SetAttribute("No", Convert.ToString(tessalationIndex));
 
-                            MathNet.Numerics.LinearAlgebra.Vector<Double> Normal = (joiningNormals.Column(tessalationIndex) + baseNormals.Column(tessalationIndex))/ 2;
-                            MathNet.Numerics.LinearAlgebra.Vector<Double> Normal1 = joiningNormals.Column(tessalationIndex);
+                                MathNet.Numerics.LinearAlgebra.Vector<Double> Normal = (joiningNormals.Column(tessalationIndex) + baseNormals.Column(tessalationIndex)) / 2;
+                                MathNet.Numerics.LinearAlgebra.Vector<Double> Normal1 = joiningNormals.Column(tessalationIndex);
 
-                            //Matrix<Double> A = DenseMatrix.OfArray(new double[,] {
-                            //    { ewo.TessalationPoints[0, tessalationIndex], ewo.TessalationPoints[0, tessalationIndex + 1], (ewo.TessalationPoints[0, tessalationIndex] + ewo.TessalationPoints[0, tessalationIndex + 1]) / 2, ewo.TessalationPoints[0, tessalationIndex] + joiningNormals[0, tessalationIndex],  ewo.TessalationPoints[0, tessalationIndex] + baseNormals[0, tessalationIndex], ((ewo.TessalationPoints[0, tessalationIndex] + joiningNormals[0, tessalationIndex]) + (ewo.TessalationPoints[0, tessalationIndex] + baseNormals[0, tessalationIndex])) / 2},
-                            //    { ewo.TessalationPoints[1, tessalationIndex], ewo.TessalationPoints[1, tessalationIndex + 1], (ewo.TessalationPoints[1, tessalationIndex] + ewo.TessalationPoints[1, tessalationIndex + 1]) / 2, ewo.TessalationPoints[1, tessalationIndex] + joiningNormals[1, tessalationIndex],  ewo.TessalationPoints[1, tessalationIndex] + baseNormals[1, tessalationIndex], ((ewo.TessalationPoints[1, tessalationIndex] + joiningNormals[1, tessalationIndex]) + (ewo.TessalationPoints[1, tessalationIndex] + baseNormals[1, tessalationIndex])) / 2},
-                            //    { ewo.TessalationPoints[2, tessalationIndex], ewo.TessalationPoints[2, tessalationIndex + 1], (ewo.TessalationPoints[2, tessalationIndex] + ewo.TessalationPoints[2, tessalationIndex + 1]) / 2, ewo.TessalationPoints[2, tessalationIndex] + joiningNormals[2, tessalationIndex],  ewo.TessalationPoints[2, tessalationIndex] + baseNormals[2, tessalationIndex], ((ewo.TessalationPoints[2, tessalationIndex] + joiningNormals[2, tessalationIndex]) + (ewo.TessalationPoints[2, tessalationIndex] + baseNormals[2, tessalationIndex])) / 2}
-                            //});
+                                //Matrix<Double> A = DenseMatrix.OfArray(new double[,] {
+                                //    { ewo.TessalationPoints[0, tessalationIndex], ewo.TessalationPoints[0, tessalationIndex + 1], (ewo.TessalationPoints[0, tessalationIndex] + ewo.TessalationPoints[0, tessalationIndex + 1]) / 2, ewo.TessalationPoints[0, tessalationIndex] + joiningNormals[0, tessalationIndex],  ewo.TessalationPoints[0, tessalationIndex] + baseNormals[0, tessalationIndex], ((ewo.TessalationPoints[0, tessalationIndex] + joiningNormals[0, tessalationIndex]) + (ewo.TessalationPoints[0, tessalationIndex] + baseNormals[0, tessalationIndex])) / 2},
+                                //    { ewo.TessalationPoints[1, tessalationIndex], ewo.TessalationPoints[1, tessalationIndex + 1], (ewo.TessalationPoints[1, tessalationIndex] + ewo.TessalationPoints[1, tessalationIndex + 1]) / 2, ewo.TessalationPoints[1, tessalationIndex] + joiningNormals[1, tessalationIndex],  ewo.TessalationPoints[1, tessalationIndex] + baseNormals[1, tessalationIndex], ((ewo.TessalationPoints[1, tessalationIndex] + joiningNormals[1, tessalationIndex]) + (ewo.TessalationPoints[1, tessalationIndex] + baseNormals[1, tessalationIndex])) / 2},
+                                //    { ewo.TessalationPoints[2, tessalationIndex], ewo.TessalationPoints[2, tessalationIndex + 1], (ewo.TessalationPoints[2, tessalationIndex] + ewo.TessalationPoints[2, tessalationIndex + 1]) / 2, ewo.TessalationPoints[2, tessalationIndex] + joiningNormals[2, tessalationIndex],  ewo.TessalationPoints[2, tessalationIndex] + baseNormals[2, tessalationIndex], ((ewo.TessalationPoints[2, tessalationIndex] + joiningNormals[2, tessalationIndex]) + (ewo.TessalationPoints[2, tessalationIndex] + baseNormals[2, tessalationIndex])) / 2}
+                                //});
 
-                            Matrix<Double> A = DenseMatrix.OfArray(new double[,] {
+                                Matrix<Double> A = DenseMatrix.OfArray(new double[,] {
                                 { ewo.TessalationPoints[0, tessalationIndex], ewo.TessalationPoints[0, tessalationIndex + 1], ewo.TessalationPoints[0, tessalationIndex] + Normal[0], ewo.TessalationPoints[0, tessalationIndex + 1] + Normal1[0] },
                                 { ewo.TessalationPoints[1, tessalationIndex], ewo.TessalationPoints[1, tessalationIndex + 1], ewo.TessalationPoints[1, tessalationIndex] + Normal[1], ewo.TessalationPoints[1, tessalationIndex + 1] + Normal1[1]},
                                 { ewo.TessalationPoints[2, tessalationIndex], ewo.TessalationPoints[2, tessalationIndex + 1], ewo.TessalationPoints[2, tessalationIndex] + Normal[2], ewo.TessalationPoints[2, tessalationIndex + 1] + Normal1[2]}
                             });
 
-                            String A_string = "[";
+                                String A_string = "[";
 
-                            for (int row_index = 0; row_index < A.RowCount; row_index++)
-                            {
-
-                                for (int col_index = 0; col_index < A.ColumnCount; col_index++)
+                                for (int row_index = 0; row_index < A.RowCount; row_index++)
                                 {
-                                    A_string = A_string + Convert.ToString(A[row_index, col_index]);
-                                    if (col_index < A.ColumnCount - 1)
-                                        A_string = A_string + ", ";
+
+                                    for (int col_index = 0; col_index < A.ColumnCount; col_index++)
+                                    {
+                                        A_string = A_string + Convert.ToString(A[row_index, col_index]);
+                                        if (col_index < A.ColumnCount - 1)
+                                            A_string = A_string + ", ";
 
 
+                                    }
+                                    if (row_index < A.RowCount - 1)
+                                        A_string = A_string + "; ";
+                                    else
+                                        A_string = A_string + "]";
                                 }
-                                if (row_index < A.RowCount - 1)
-                                    A_string = A_string + "; ";
-                                else
-                                    A_string = A_string + "]";
-                            }
 
-                            EWOLogElement.SetAttribute("A", A_string);
+                                EWOLogElement.SetAttribute("A", A_string);
 
-                            Matrix<Double> A_aux = DenseMatrix.OfArray(new double[,] {
+                                Matrix<Double> A_aux = DenseMatrix.OfArray(new double[,] {
                                 { ewo.TessalationPoints[0, tessalationIndex], ewo.TessalationPoints[0, tessalationIndex + 1], ewo.TessalationPoints[0, tessalationIndex] + Normal[0], ewo.TessalationPoints[0, tessalationIndex + 1] + Normal1[0] },
                                 { ewo.TessalationPoints[1, tessalationIndex], ewo.TessalationPoints[1, tessalationIndex + 1], ewo.TessalationPoints[1, tessalationIndex] + Normal[1], ewo.TessalationPoints[1, tessalationIndex + 1] + Normal1[1]},
                                 { ewo.TessalationPoints[2, tessalationIndex], ewo.TessalationPoints[2, tessalationIndex + 1], ewo.TessalationPoints[2, tessalationIndex] + Normal[2], ewo.TessalationPoints[2, tessalationIndex + 1] + Normal1[2]}
                             });
 
-                            //Matrix<Double> B = DenseMatrix.OfArray(new double[,]
-                            //{
-                            //    { 0, 0, 0, 1, 0, 0.5},
-                            //    { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
-                            //    { 0, 0, 0, 0, 1, 0.5}
-                            //});
+                                //Matrix<Double> B = DenseMatrix.OfArray(new double[,]
+                                //{
+                                //    { 0, 0, 0, 1, 0, 0.5},
+                                //    { 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)), 0, Distance(A.Column(0), A.Column(1)), Distance(A.Column(0), A.Column(2)) },
+                                //    { 0, 0, 0, 0, 1, 0.5}
+                                //});
 
-                            Matrix<Double> B = DenseMatrix.OfArray(new double[,]
-                            {
+                                Matrix<Double> B = DenseMatrix.OfArray(new double[,]
+                                {
                                 { 0, 0, 0.5, 1},
                                 { 0, Distance(A.Column(0), A.Column(1)), 0, Distance(A.Column(0), A.Column(1)) },
                                 { 0, 0, 0.5, 0}
-                            });
+                                });
 
-                            String B_string = "[";
+                                String B_string = "[";
 
-                            for (int row_index = 0; row_index < B.RowCount; row_index++)
-                            {
-
-                                for (int col_index = 0; col_index < B.ColumnCount; col_index++)
+                                for (int row_index = 0; row_index < B.RowCount; row_index++)
                                 {
-                                    B_string = B_string + Convert.ToString(B[row_index, col_index]);
-                                    if (col_index < B.ColumnCount - 1)
-                                        B_string = B_string + ", ";
+
+                                    for (int col_index = 0; col_index < B.ColumnCount; col_index++)
+                                    {
+                                        B_string = B_string + Convert.ToString(B[row_index, col_index]);
+                                        if (col_index < B.ColumnCount - 1)
+                                            B_string = B_string + ", ";
 
 
+                                    }
+                                    if (row_index < B.RowCount - 1)
+                                        B_string = B_string + "; ";
+                                    else
+                                        B_string = B_string + "]";
                                 }
-                                if (row_index < B.RowCount - 1)
-                                    B_string = B_string + "; ";
-                                else
-                                    B_string = B_string + "]";
-                            }
 
-                            EWOLogElement.SetAttribute("B", B_string);
+                                EWOLogElement.SetAttribute("B", B_string);
 
-                            Matrix<Double> B_aux = DenseMatrix.OfArray(new double[,]
-                            {
+                                Matrix<Double> B_aux = DenseMatrix.OfArray(new double[,]
+                                {
                                 { 0, 0, 0.5, 1},
                                 { 0, Distance(A.Column(0), A.Column(1)), 0, Distance(A.Column(0), A.Column(1)) },
                                 { 0, 0, 0.5, 0}
-                            });
+                                });
 
 
 
-                            Matrix<Double> R = AbsoluteOrientation(A_aux, B_aux);
+                                Matrix<Double> R = AbsoluteOrientation(A_aux, B_aux);
 
-                            String R_string = "[";
+                                String R_string = "[";
 
-                            for (int row_index = 0; row_index < R.RowCount; row_index++)
-                            {
-
-                                for (int col_index = 0; col_index < R.ColumnCount; col_index++)
+                                for (int row_index = 0; row_index < R.RowCount; row_index++)
                                 {
-                                    R_string = R_string + Convert.ToString(R[row_index, col_index]);
-                                    if (col_index < R.ColumnCount - 1)
-                                        R_string = R_string + ", ";
+
+                                    for (int col_index = 0; col_index < R.ColumnCount; col_index++)
+                                    {
+                                        R_string = R_string + Convert.ToString(R[row_index, col_index]);
+                                        if (col_index < R.ColumnCount - 1)
+                                            R_string = R_string + ", ";
 
 
+                                    }
+                                    if (row_index < R.RowCount - 1)
+                                        R_string = R_string + "; ";
+                                    else
+                                        R_string = R_string + "]";
                                 }
-                                if (row_index < R.RowCount - 1)
-                                    R_string = R_string + "; ";
-                                else
-                                    R_string = R_string + "]";
+
+                                EWOLogElement.SetAttribute("R", R_string);
+
+                                String StartPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString(A[0, 0]) + "], [" +
+                                    Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 0]) + "], [" +
+                                    Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 0]) + "], " +
+                                    "[0, 0, 0, 1]]";
+
+                                String EndPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString(A[0, 1]) + "], [" +
+                                    Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 1]) + "], [" +
+                                    Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 1]) + "], " +
+                                    "[0, 0, 0, 1]]";
+
+
+                                //if (!added_approach)
+                                //{
+
+
+
+                                //    String ApproachPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString((A[0, 5] + ApproachVector[0])) + "], [" +
+                                //    Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 5] + ApproachVector[1]) + "], [" +
+                                //    Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 5] + ApproachVector[2]) + "], " +
+                                //    "[0, 0, 0, 1]]";
+
+                                //    String DeparturePose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString((A[0, 5] + ApproachVector[0])) + "], [" +
+                                //    Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 5] + ApproachVector[1]) + "], [" +
+                                //    Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 5] + ApproachVector[2]) + "], " +
+                                //    "[0, 0, 0, 1]]";
+
+
+                                //    WeldmentElement.SetAttribute("ApproachPose", ApproachPose);
+
+                                //    WeldmentElement.SetAttribute("DeparturePose", DeparturePose);
+
+                                //    added_approach = true;
+
+                                //}
+
+                                XmlElement EWOElement = XMLFile.CreateElement("EWO");
+                                WeldmentElement.AppendChild(EWOElement);
+                                EWOElement.SetAttribute("No", Convert.ToString(ewoindex));
+                                EWOElement.SetAttribute("StartPose", StartPose);
+                                EWOElement.SetAttribute("EndPose", EndPose);
+                                //EWOElement.SetAttribute("SeamAngle", SeamAngle);
+                                EWOElement.SetAttribute("Stickout", Convert.ToString(stickout));
+                                EWOElement.SetAttribute("BasePlateThickness", "10");
+                                EWOElement.SetAttribute("JoiningPlateThickness", "10");
+
+                                ewoindex += 1;
+
                             }
-
-                            EWOLogElement.SetAttribute("R", R_string);
-
-                            String StartPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString(A[0, 0]) + "], [" +
-                                Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 0]) + "], [" +
-                                Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 0]) + "], " +
-                                "[0, 0, 0, 1]]";
-
-                            String EndPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString(A[0, 1]) + "], [" +
-                                Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 1]) + "], [" +
-                                Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 1]) + "], " +
-                                "[0, 0, 0, 1]]";
-
-
-                            //if (!added_approach)
-                            //{
-
-
-
-                            //    String ApproachPose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString((A[0, 5] + ApproachVector[0])) + "], [" +
-                            //    Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 5] + ApproachVector[1]) + "], [" +
-                            //    Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 5] + ApproachVector[2]) + "], " +
-                            //    "[0, 0, 0, 1]]";
-
-                            //    String DeparturePose = "[[" + Convert.ToString(R[0, 0]) + ", " + Convert.ToString(R[0, 1]) + ", " + Convert.ToString(R[0, 2]) + ", " + Convert.ToString((A[0, 5] + ApproachVector[0])) + "], [" +
-                            //    Convert.ToString(R[1, 0]) + ", " + Convert.ToString(R[1, 1]) + ", " + Convert.ToString(R[1, 2]) + ", " + Convert.ToString(A[1, 5] + ApproachVector[1]) + "], [" +
-                            //    Convert.ToString(R[2, 0]) + ", " + Convert.ToString(R[2, 1]) + ", " + Convert.ToString(R[2, 2]) + ", " + Convert.ToString(A[2, 5] + ApproachVector[2]) + "], " +
-                            //    "[0, 0, 0, 1]]";
-
-
-                            //    WeldmentElement.SetAttribute("ApproachPose", ApproachPose);
-
-                            //    WeldmentElement.SetAttribute("DeparturePose", DeparturePose);
-
-                            //    added_approach = true;
-
-                            //}
-
-                            XmlElement EWOElement = XMLFile.CreateElement("EWO");
-                            WeldmentElement.AppendChild(EWOElement);
-                            EWOElement.SetAttribute("No", Convert.ToString(ewoindex));
-                            EWOElement.SetAttribute("StartPose", StartPose);
-                            EWOElement.SetAttribute("EndPose", EndPose);
-                            //EWOElement.SetAttribute("SeamAngle", SeamAngle);
-                            EWOElement.SetAttribute("Stickout", Convert.ToString(stickout));
-                            EWOElement.SetAttribute("BasePlateThickness", "10");
-                            EWOElement.SetAttribute("JoiningPlateThickness", "10");
-
-                            ewoindex += 1;
-
                         }
 
 
