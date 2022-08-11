@@ -1504,7 +1504,7 @@ namespace SWXSTANDALONE
 
                 }
                 //XMLFile.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments.xml");
-                XMLLog.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments_log.xml");
+                //XMLLog.Save("C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\weldments_log.xml");
                 //string strCmdText;
                 //strCmdText = "C:\\Users\\simat\\.conda\\envs\\EWO\\pythonw.exe C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\Horn\\hrn5b.py";
                 //System.Diagnostics.Process.Start("CMD.exe", strCmdText);
@@ -1515,19 +1515,19 @@ namespace SWXSTANDALONE
                 //XMLFile.Save(filePath);
                 //Debug.Print("HOPA");
 
-                var proc = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "C:\\Users\\simat\\.conda\\envs\\EWO\\pythonw.exe",
-                        Arguments = "C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\Horn\\hrn5b.py",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true,                       
-                    }
-                };
+                //var proc = new Process
+                //{
+                //    StartInfo = new ProcessStartInfo
+                //    {
+                //        FileName = "C:\\Users\\simat\\.conda\\envs\\EWO\\pythonw.exe",
+                //        Arguments = "C:\\Users\\simat\\OneDrive\\Desktop\\ElementaryOperations\\Horn\\hrn5b.py",
+                //        UseShellExecute = false,
+                //        RedirectStandardOutput = true,
+                //        CreateNoWindow = true,                       
+                //    }
+                //};
 
-                proc.Start();
+                //proc.Start();
 
             }
 
